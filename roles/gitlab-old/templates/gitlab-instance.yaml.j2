@@ -18,6 +18,13 @@ gitlab:
   unicorn:
     registry:
       enabled: false
+  toolbox:
+    persistence:
+      enabled: true
+      size: '100Gi'
+      storageClass: ocs-storagecluster-ceph-rbd
+      volumeName: gitlab-toolbox-tmp
+
 minio:
   ingress:
     tls:
@@ -35,6 +42,12 @@ gitlab:
   unicorn:
     registry:
       enabled: false
+  toolbox:
+    persistence:
+      enabled: true
+      size: '100Gi'
+      storageClass: ocs-storagecluster-ceph-rbd
+      volumeName: gitlab-toolbox-tmp
 
 minio:
   ingress:
