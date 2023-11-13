@@ -45,16 +45,16 @@
         - sonarqube
         - sonar
 
-    - name: gitlab
+    - name: gitlab-old
       tags:
         - gitlab
 
-    - name: gitlab-catalog
+    - name: gitlab-catalog-old
       tags:
         - catalog
         - gitlab-catalog
 
-    - name: gitlab-runner
+    - name: gitlab-runner-old
       tags:
         - runner
         - gitlab-runner
