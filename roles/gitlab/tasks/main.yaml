@@ -208,14 +208,16 @@
     body_format: form-urlencoded
   changed_when: true
 
-- name: Set parent group name
-  ansible.builtin.set_fact:
-    index: "0"
-    parent: ""
-
 - name: Include create group
   ansible.builtin.include_tasks:
     file: create-group.yaml
+  loop:
+    - "{{ dsc.global.infraRootDir }}"
+    - "{{ dsc.global.projectsRootDir }}"
+  vars:
+    index: "0"
+    parent: ""
+    rootDir: "{{ item }}"
 
 - name: Set or update some CI/CD variables
   community.general.gitlab_group_variable:

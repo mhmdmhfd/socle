@@ -31,4 +31,5 @@
         # SONAR_API_TOKEN: roles/sonarqube/tasks/main.yaml
         # VAULT_TOKEN: roles/vault/tasks/main.yaml
         ARGO_NAMESPACE: "{{ dsc.argocd.namespace }}"
+        INFRA_ROOT_DIR: "{{ dsc.global.infraRootDir | join('/') }}"
         PROJECTS_ROOT_DIR: "{{ dsc.global.projectsRootDir | join('/') }}"

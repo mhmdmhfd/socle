@@ -149,7 +149,7 @@ Voici un **exemple** de fichier de configuration valide, à adapter à partir de
 ```yaml
 ---
 kind: DsoSocleConfig
-apiVersion: cloud-pi-native.fr/v1alpha
+apiVersion: cloud-pi-native.fr/v1beta
 metadata:
   name: conf-dso
 spec:
@@ -177,6 +177,8 @@ spec:
   gitlabRunner: {}
   global:
     environment: production
+    infraRootDir:
+      - infra-root-dir
     projectsRootDir:
       - my-root-dir
       - projects-sub-dir

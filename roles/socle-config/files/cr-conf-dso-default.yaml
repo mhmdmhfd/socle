@@ -1,6 +1,6 @@
 ---
 kind: DsoSocleConfig
-apiVersion: cloud-pi-native.fr/v1alpha
+apiVersion: cloud-pi-native.fr/v1beta
 metadata:
   name: conf-dso
 spec:
@@ -20,6 +20,8 @@ spec:
   gitlabRunner: {}
   global:
     environment: production
+    infraRootDir:
+      - infra
     projectsRootDir:
       - forge
     rootDomain:
