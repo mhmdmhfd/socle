@@ -40,3 +40,7 @@ grafana_dashboards:
     dashboard_template: cnpg-dashboard.yaml.j2
     webpage: https://grafana.com/grafana/dashboards/20417-cloudnativepg/
     json: https://grafana.com/api/dashboards/20417/revisions/2/download
+  - name: AlertManager
+    dashboard_template: alertmanager-dashboard.yaml.j2
+    webpage: https://grafana.com/grafana/dashboards/12947-open-alerts-of-alertmanager/
+    json: https://grafana.com/api/dashboards/12947/revisions/1/download

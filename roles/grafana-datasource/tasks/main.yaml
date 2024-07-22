@@ -54,3 +54,7 @@
 - name: Create Grafana prometheus datasource
   kubernetes.core.k8s:
     template: prometheus-datasource.yaml.j2
+
+- name: Create Grafana alertmanager datasource
+  kubernetes.core.k8s:
+    template: alertmanager-datasource.yaml.j2
