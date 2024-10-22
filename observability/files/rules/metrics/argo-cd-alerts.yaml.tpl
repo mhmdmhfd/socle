@@ -109,3 +109,15 @@ groups:
         for: 5m
         labels:
           severity: warning
+      - alert: Argo CD high CPU load on pod
+        annotations:
+          message: Argo CD {{`{{`}} $labels.pod {{`}}`}} pod in namespace {{`{{`}} $labels.namespace {{`}}`}} reported high CPU load for the last 5 minutes.
+          summary: Argo CD {{`{{`}} $labels.pod {{`}}`}} pod has high CPU load
+        expr: |
+          (sum by(pod) (
+          rate(
+          container_cpu_usage_seconds_total
+          {namespace=~"{{ .Values.app.namespacePrefix }}argocd"}[5m])) * 100) > 90
+        for: 5m
+        labels:
+          severity: critical
