@@ -10,7 +10,7 @@ groups:
           pod=~"harbor-core-.*",
           namespace="{{ .Values.app.namespacePrefix }}harbor",
           condition="true"}) == 0
-        for: 5m
+        for: 1m
         labels:
           severity: critical
       - alert: Harbor exporter not available
@@ -22,7 +22,7 @@ groups:
           pod=~"harbor-exporter-.*",
           namespace="{{ .Values.app.namespacePrefix }}harbor",
           condition="true"}) == 0
-        for: 5m
+        for: 1m
         labels:
           severity: critical
       - alert: Harbor jobservice not available
@@ -34,7 +34,7 @@ groups:
           pod=~"harbor-jobservice-.*",
           namespace="{{ .Values.app.namespacePrefix }}harbor",
           condition="true"}) == 0
-        for: 5m
+        for: 1m
         labels:
           severity: critical
       - alert: Harbor portal not available
@@ -46,7 +46,7 @@ groups:
           pod=~"harbor-portal-.*",
           namespace="{{ .Values.app.namespacePrefix }}harbor",
           condition="true"}) == 0
-        for: 5m
+        for: 1m
         labels:
           severity: critical
       - alert: Harbor redis not available
@@ -58,7 +58,7 @@ groups:
           pod=~"harbor-redis-.*",
           namespace="{{ .Values.app.namespacePrefix }}harbor",
           condition="true"}) == 0
-        for: 5m
+        for: 1m
         labels:
           severity: critical
       - alert: Harbor registry not available
@@ -70,7 +70,7 @@ groups:
           pod=~"harbor-registry-.*",
           namespace="{{ .Values.app.namespacePrefix }}harbor",
           condition="true"}) == 0
-        for: 5m
+        for: 1m
         labels:
           severity: critical
       - alert: Harbor trivy not available
@@ -82,7 +82,7 @@ groups:
           pod=~"harbor-trivy-.*",
           namespace="{{ .Values.app.namespacePrefix }}harbor",
           condition="true"}) == 0
-        for: 5m
+        for: 1m
         labels:
           severity: critical
       - alert: Harbor Pod not healthy
@@ -93,7 +93,7 @@ groups:
           kube_pod_container_status_ready{
           pod=~"harbor-.*",
           namespace="{{ .Values.app.namespacePrefix }}harbor"} == 0
-        for: 5m
+        for: 1m
         labels:
           severity: warning
       - alert: Harbor DB not available
@@ -107,7 +107,7 @@ groups:
           or sum(kube_pod_container_status_ready{
           pod=~"pg-cluster-harbor-\\d+",
           container="postgres", namespace="{{ .Values.app.namespacePrefix }}harbor"}) == 0
-        for: 5m
+        for: 1m
         labels:
           severity: critical
       - alert: Harbor DB Pod not healthy
@@ -118,7 +118,7 @@ groups:
           kube_pod_container_status_ready{
           pod=~"pg-cluster-harbor-\\d+",
           container="postgres", namespace="{{ .Values.app.namespacePrefix }}harbor"} == 0
-        for: 5m
+        for: 1m
         labels:
           severity: warning
       - alert: Harbor PVC has low remaining disk space
