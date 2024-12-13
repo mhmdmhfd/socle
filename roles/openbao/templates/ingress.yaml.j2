@@ -1,0 +1,37 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: openbao-ingress
+  namespace: {{ dsc.openbao.namespace }}
+  annotations:
+{% for key, val in (dsc.ingress.annotations | combine(dsc.openbao['values'].server.ingress.annotations | default([]))).items() %}
+    {{ key }}: {{ val }}
+{% endfor %}
+  labels:
+    app: openbao
+{% for key, val in dsc.ingress.labels.items() %}
+    {{ key }}: {{ val }}
+{% endfor %}
+spec:
+{% if not dsc.ingress.tls.type == 'none' %}
+  tls:
+    - hosts:
+        - {{ openbao_domain }}
+{% if dsc.ingress.tls.type == 'tlsSecret' %}
+      secretName: {{ dsc.ingress.tls.tlsSecret.name }}
+{% else %}
+      secretName: openbao-tls-secret
+{% endif %}
+{% endif %}
+  ingressClassName: {{ dsc.ingress.className | default('') }}
+  rules:
+    - host: {{ openbao_domain }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ dsc_name }}-openbao-ui
+                port:
+                  number: 8200

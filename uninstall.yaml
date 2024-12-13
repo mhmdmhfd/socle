@@ -312,6 +312,23 @@
       tags:
         - vault
 
+    - name: "Suppression de l'instance OpenBao"
+      kubernetes.core.helm:
+        name: "{{ dsc_name }}-openbao"
+        release_namespace: "{{ dsc.openbao.namespace }}"
+        release_state: absent
+        wait: true
+      tags:
+        - openbao
+
+    - name: "Suppression du namespace OpenBao"
+      kubernetes.core.k8s:
+        state: absent
+        kind: Namespace
+        name: "{{ dsc.openbao.namespace }}"
+      tags:
+        - openbao
+
     - name: "Suppression de l'instance Argo CD"
       kubernetes.core.helm:
         name: "{{ dsc_name }}"

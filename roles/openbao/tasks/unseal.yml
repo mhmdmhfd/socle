@@ -1,0 +1,20 @@
+---
+- name: Set seal count
+  ansible.builtin.set_fact:
+    unseal_key_index: "{{ (unseal_key_index | int) + 1 }}"
+
+- name: Unseal OpenBao - "{{ openbao_pod }}"
+  kubernetes.core.k8s_exec:
+    container: openbao
+    pod: "{{ openbao_pod }}"
+    namespace: "{{ dsc.openbao.namespace }}"
+    command: "bao operator unseal {{ openbao_keys.resources[0].data['key' + (unseal_key_index | string)] | b64decode }}"
+  register: unseal_res
+  ignore_errors: true
+
+- name: Check openbao status - "{{ openbao_pod }}"
+  ansible.builtin.include_tasks: check.yml
+
+- name: Rerun unseal if necessary
+  ansible.builtin.include_tasks: unseal.yml
+  when: openbao_status == 'sealed'

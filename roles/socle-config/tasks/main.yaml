@@ -129,6 +129,7 @@
     harbor_domain: "{{ dsc.harbor.subDomain }}{{ root_domain }}"
     keycloak_domain: "{{ dsc.keycloak.subDomain }}{{ root_domain }}"
     nexus_domain: "{{ dsc.nexus.subDomain }}{{ root_domain }}"
+    openbao_domain: "{{ dsc.openbao.subDomain }}{{ root_domain }}"
     sonar_domain: "{{ dsc.sonarqube.subDomain }}{{ root_domain }}"
     vault_domain: "{{ dsc.vault.subDomain }}{{ root_domain }}"
 
@@ -142,6 +143,7 @@
       - "harbor_domain: {{ harbor_domain }}"
       - "keycloak_domain: {{ keycloak_domain }}"
       - "nexus_domain: {{ nexus_domain }}"
+      - "openbao_domain: {{ openbao_domain }}"
       - "sonar_domain: {{ sonar_domain }}"
       - "vault_domain: {{ vault_domain }}"
 

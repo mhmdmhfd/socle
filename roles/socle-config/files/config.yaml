@@ -57,6 +57,8 @@ spec:
         enabled: false
       vault:
         enabled: false
+      openbao:
+        enabled: false
     metrics:
       enabled: false
     alerting:
@@ -103,6 +105,12 @@ spec:
     storageSize: 25Gi
     proxyEnabled: false
     proxyCacheSize: 25Gi
+  openbao:
+    namespace: dso-openbao
+    subDomain: openbao
+    helmRepoUrl: https://openbao.github.io/openbao-helm
+    pvcSize: 23Gi
+    values: {}
   sonarqube:
     namespace: dso-sonarqube
     subDomain: sonar

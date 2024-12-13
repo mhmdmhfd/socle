@@ -1,0 +1,29 @@
+{% if use_private_registry %}
+injector:
+  image:
+    registry: "{{ dsc.global.registry }}"
+    repository: "hashicorp/vault-k8s"
+  agentImage:
+    registry: "{{ dsc.global.registry }}"
+    repository: "openbao/openbao"
+
+server:
+  image:
+    registry: "{{ dsc.global.registry }}"
+    repository: "openbao/openbao"
+
+csi:
+  image:
+    registry: "{{ dsc.global.registry }}"
+    repository: "hashicorp/vault-csi-provider"
+  agent:
+    image:
+      registry: "{{ dsc.global.registry }}"
+      repository: "openbao/openbao"
+{% endif %}
+
+{% if use_image_pull_secrets %}
+global:
+  imagePullSecrets:
+  - name: dso-config-pull-secret
+{% endif %}

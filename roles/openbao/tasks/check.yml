@@ -1,0 +1,41 @@
+---
+- name: Get openbao status
+  kubernetes.core.k8s_exec:
+    container: openbao
+    pod: "{{ openbao_pod }}"
+    namespace: "{{ dsc.openbao.namespace }}"
+    command: bao status -format=json
+  register: openbao_status
+  ignore_errors: true
+  changed_when: false
+
+- name: Set openbao_initialized fact
+  ansible.builtin.set_fact:
+    openbao_initialized: "{{ openbao_status.stdout
+      | from_json
+      | dict2items
+      | selectattr('key', 'eq', 'initialized')
+      | map(attribute='value') | first | default('false') }}"
+
+- name: Set openbao_sealed fact
+  ansible.builtin.set_fact:
+    openbao_sealed: "{{ openbao_status.stdout
+      | from_json
+      | dict2items
+      | selectattr('key', 'eq', 'sealed')
+      | map(attribute='value') | first | default('true') }}"
+
+- name: Set openbao_status to "not init"
+  when: not openbao_initialized
+  ansible.builtin.set_fact:
+    openbao_status: "not init"
+
+- name: Set openbao_status to sealed
+  when:  (openbao_initialized) and (openbao_sealed)
+  ansible.builtin.set_fact:
+    openbao_status: "sealed"
+
+- name: Set openbao_status to OK
+  when:  (openbao_initialized) and (not openbao_sealed)
+  ansible.builtin.set_fact:
+    openbao_status: "OK"

@@ -1,0 +1,199 @@
+{% if dsc.global.metrics.enabled %}
+global:
+  serverTelemetry:
+    prometheusOperator: true
+{% endif %}
+injector:
+{% if dsc.global.metrics.enabled %}
+  metrics:
+    enabled: true
+{% endif %}
+  image:
+    registry: "docker.io"
+    repository: "hashicorp/vault-k8s"
+  agentImage:
+    registry: "quay.io"
+    repository: "openbao/openbao"
+server:
+  route:
+    enabled: false
+  ha:
+    enabled: true
+    replicas: 3
+    apiAddr: "https://{{ openbao_domain }}"
+    raft:
+      enabled: true
+{% if dsc.global.metrics.enabled %}
+      config: |
+        ui = true
+        service_registration "kubernetes" {}
+        listener "tcp" {
+          tls_disable = 1
+          address = "[::]:8200"
+          cluster_address = "[::]:8201"
+          telemetry {
+            unauthenticated_metrics_access = "false"
+          }
+        }
+        storage "raft" {
+          path = "/openbao/data"
+        }
+        telemetry {
+          prometheus_retention_time = "30s"
+          disable_hostname = true
+        }
+{% endif %}
+  standalone:
+    enabled: false
+{% if dsc.global.metrics.enabled %}
+    config: |
+      ui = true
+      listener "tcp" {
+        tls_disable = 1
+        address = "[::]:8200"
+        cluster_address = "[::]:8201"
+        telemetry {
+          unauthenticated_metrics_access = "false"
+        }
+      }
+      storage "file" {
+        path = "/openbao/data"
+      }
+      telemetry {
+        prometheus_retention_time = "30s"
+        disable_hostname = true
+      }
+{% endif %}
+  auditStorage:
+    enable: true
+  dataStorage:
+    enable: true
+    size: {{ dsc.openbao.pvcSize }}
+  image:
+    registry: "quay.io"
+    repository: "openbao/openbao"
+ui:
+  enabled: true
+csi:
+  image:
+    registry: "docker.io"
+    repository: "hashicorp/vault-csi-provider"
+  agent:
+    image:
+      registry: "quay.io"
+      repository: "openbao/openbao"
+{% if dsc.global.metrics.enabled %}
+serverTelemetry:
+  serviceMonitor:
+    enabled: true
+{% endif %}
+{% if dsc.global.alerting.enabled %}
+serverTelemetry:
+  prometheusRules:
+    enabled: true
+    rules:
+{% if dsc.global.metrics.enabled %}
+      - alert: OpenBao is sealed
+        annotations:
+          message: OpenBao instance in namespace {{ dsc.openbao.namespace }} is sealed.
+          summary: OpenBao instance sealed
+        expr: |
+          max(1 + vault_core_unsealed{namespace="{{ dsc.openbao.namespace }}"}) == 1
+        for: 5m
+        labels:
+          severity: critical
+{% endif %}
+      - alert: OpenBao instance not healthy
+        annotations:
+          message: OpenBao {{"{{"}} $labels.pod {{"}}"}} pod in namespace {{ dsc.openbao.namespace }} is not healthy (sealed?). Check its logs.
+          summary: OpenBao instance is not healthy (sealed?)
+        expr: |
+          up{job="{{ dsc_name }}-openbao-internal",pod=~"(.*-)*openbao(-.*)*"} == 0
+        for: 5m
+        labels:
+          severity: warning
+      - alert: OpenBao is not available
+        annotations:
+          message: OpenBao in namespace {{ dsc.openbao.namespace }} has not been available for the last 5 minutes.
+          summary: OpenBao is down (no ready container)
+        expr: |
+          (absent(kube_pod_container_status_ready{
+          pod=~"(.*-)*openbao(-.*)*",
+          container="openbao",
+          namespace="{{ dsc.openbao.namespace }}"}) == 1)
+          or sum(kube_pod_container_status_ready{
+          pod=~"(.*-)*openbao(-.*)*",
+          container="openbao",
+          namespace="{{ dsc.openbao.namespace }}"}) == 0
+        for: 5m
+        labels:
+          severity: critical
+      - alert: OpenBao agent injector is not available
+        annotations:
+          message: OpenBao agent injector in namespace {{ dsc.openbao.namespace }} has not been available for the last 5 minutes.
+          summary: OpenBao agent injector is down (no ready container)
+        expr: |
+          (absent(kube_pod_container_status_ready{
+          pod=~"(.*-)*openbao(-.*)*",
+          container="sidecar-injector",
+          namespace="{{ dsc.openbao.namespace }}"}) == 1)
+          or sum(kube_pod_container_status_ready{
+          pod=~"(.*-)*openbao(-.*)*",
+          container="sidecar-injector",
+          namespace="{{ dsc.openbao.namespace }}"}) == 0
+        for: 5m
+        labels:
+          severity: critical
+      - alert: OpenBao Pod not healthy
+        annotations:
+          message: OpenBao {{"{{"}} $labels.pod {{"}}"}} pod in namespace {{ dsc.openbao.namespace }} has been unavailable for the last 5 minutes.
+          summary: OpenBao pod not healthy (container is not ready)
+        expr: |
+          kube_pod_container_status_ready{
+          pod!~"backup-utils-openbao(-.*)*",
+          namespace="{{ dsc.openbao.namespace }}"} == 0
+        for: 5m
+        labels:
+          severity: warning
+      - alert: OpenBao PVC has low remaining disk space
+        annotations:
+          message: PVC {{"{{"}} $labels.persistentvolumeclaim {{"}}"}} in namespace {{"{{"}} $labels.namespace {{"}}"}} is running out of disk space (< 20% left). VALUE = {{"{{"}} $value {{"}}"}}%
+          summary: OpenBao PVC is running out of disk space in namespace {{"{{"}} $labels.namespace {{"}}"}}
+        expr: |
+          round(
+          kubelet_volume_stats_available_bytes{
+          persistentvolumeclaim=~"(.*-)*openbao(-.*)*",
+          namespace="{{ dsc.openbao.namespace }}"}
+          / kubelet_volume_stats_capacity_bytes{
+          persistentvolumeclaim=~"(.*-)*openbao(-.*)*",
+          namespace="{{ dsc.openbao.namespace }}"} * 100, 0.01) < 20 > 10
+        for: 1m
+        labels:
+          severity: warning
+      - alert: OpenBao PVC almost out of disk space
+        annotations:
+          message: PVC {{"{{"}} $labels.persistentvolumeclaim {{"}}"}} in namespace {{ dsc.openbao.namespace }} is almost full (< 10% left). VALUE = {{"{{"}} $value {{"}}"}}%
+          summary: OpenBao PVC almost out of disk space in namespace {{ dsc.openbao.namespace }}
+        expr: |
+          round(
+          kubelet_volume_stats_available_bytes{
+          persistentvolumeclaim=~"(.*-)*openbao(-.*)*",
+          namespace="{{ dsc.openbao.namespace }}"}
+          / kubelet_volume_stats_capacity_bytes{
+          persistentvolumeclaim=~"(.*-)*openbao(-.*)*",
+          namespace="{{ dsc.openbao.namespace }}"} * 100, 0.01) < 10 > 0
+        for: 1m
+        labels:
+          severity: critical
+      - alert: OpenBao PVC out of disk space
+        annotations:
+          message: PVC {{"{{"}} $labels.persistentvolumeclaim {{"}}"}} in namespace {{ dsc.openbao.namespace }} is full (0% left).
+          summary: OpenBao PVC out of disk space in namespace {{ dsc.openbao.namespace }}
+        expr: |
+          kubelet_volume_stats_available_bytes{
+          persistentvolumeclaim=~"(.*-)*openbao(-.*)*",
+          namespace="{{ dsc.openbao.namespace }}"} == 0
+        for: 1m
+        labels:
+          severity: critical
+{% endif %}

@@ -45,6 +45,9 @@ spec:
   nexus:
     # https://hub.docker.com/r/sonatype/nexus3/
     imageTag: 3.68.1
+  openbao:
+    # https://github.com/openbao/openbao-helm/releases
+    chartVersion: 0.7.0
   sonarqube:
     # https://artifacthub.io/packages/helm/sonarqube/sonarqube
     chartVersion: 10.7.0+3598

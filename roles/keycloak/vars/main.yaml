@@ -98,3 +98,15 @@ keycloak_clients:
     defaultClientScopes:
       - generic
     publicClient: false
+
+  - clientId: openbao-client
+    clientAuthenticatorType: client-secret
+    standardFlowEnabled: true
+    redirectUris:
+      - https://{{ openbao_domain }}/ui/vault/auth/oidc/oidc/callback
+      - https://{{ openbao_domain }}/oidc/callback
+    webOrigins:
+      - https://{{ openbao_domain }}
+    defaultClientScopes:
+      - generic
+    publicClient: false

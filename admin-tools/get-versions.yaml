@@ -21,6 +21,7 @@
           - "gitlabOperator (or gitlab-operator)"
           - "gitlabRunner (or gitlab-runner)"
           - "vault"
+          - "openbao"
           - "argo (or argocd)"
           - "harbor"
           - "console (or console-dso)"
@@ -410,6 +411,22 @@
             msg:
               - "Version de Vault : {{ vault_infos.status.app_version }}"
               - "Version de chart Helm Vault : {{ vault_infos.status.chart }}"
+
+    - name: Get OpenBao app and chart versions
+      tags:
+        - openbao
+      block:
+        - name: Retrieve OpenBao infos
+          kubernetes.core.helm_info:
+            name: "{{ dsc_name }}-openbao"
+            namespace: "{{ dsc.openbao.namespace }}"
+          register: openbao_infos
+
+        - name: Display OpenBao version
+          ansible.builtin.debug:
+            msg:
+              - "Version d'OpenBao : {{ openbao_infos.status.app_version }}"
+              - "Version de chart Helm OpenBao : {{ openbao_infos.status.chart }}"
 
     - name: Get Argo CD app and chart versions
       tags:

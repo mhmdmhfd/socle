@@ -614,6 +614,34 @@ spec:
                               type: string
                               default: "30d"
                           type: object
+                        openbao:
+                          properties:
+                            enabled:
+                              description: Enable s3 openbao backups.
+                              default: false
+                              type: boolean
+                            helmRepoUrl:
+                              description: OpenBao backup-utils helm repository url.
+                              type: string
+                            chartVersion:
+                              description: OpenBao backup-utils helm chart version (e.g., "1.12.2").
+                              type: string
+                            pathPrefix:
+                              description: Defines the globally shared s3 destination path for cnpg backups.
+                              type: string
+                              default: "openbao"
+                            mcExtraArgs:
+                              description: Extra args to pass to minio cli for the backups.
+                              type: string
+                            cron:
+                              description: Defines the cron rule used for openbao backups. By default it runs every 6 hours.
+                              type: string
+                              default: "0 */6 * * *"
+                            retentionPolicy:
+                              description: Defines retention policy for openbao backups recurrences.
+                              type: string
+                              default: "30d"
+                          type: object
                         cnpg:
                           properties:
                             enabled:
@@ -1107,6 +1135,32 @@ spec:
                   required:
                     - enabled
                   type: object
+                openbao:
+                  description: Configuration for OpenBao.
+                  properties:
+                    namespace:
+                      description: The namespace for OpenBao.
+                      type: string
+                    subDomain:
+                      description: The subdomain for OpenBao.
+                      type: string
+                    helmRepoUrl:
+                      description: OpenBao helm repository url.
+                      type: string
+                    chartVersion:
+                      description: OpenBao helm chart version (e.g., "0.7.0").
+                      type: string
+                    pvcSize:
+                      description: Size for OpenBao persistent volume.
+                      type: string
+                    values:
+                      description: |
+                        You can add custom values for openbao, they will be merged with roles/vault/templates/values/
+                        https://github.com/openbao/openbao-helm/tree/main/charts/openbao
+                        https://github.com/openbao/openbao-helm/blob/main/charts/openbao/values.yaml
+                      type: object
+                      x-kubernetes-preserve-unknown-fields: true
+                  type: object
                 sonarqube:
                   description: Configuration for SonarQube.
                   properties:
@@ -1228,6 +1282,7 @@ spec:
                 - kyverno
                 - nexus
                 - proxy
+                - openbao
                 - sonarqube
                 - vault
               type: object
