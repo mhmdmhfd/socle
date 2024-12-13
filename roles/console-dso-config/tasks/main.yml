@@ -21,6 +21,7 @@
         NEXUS_URL: "{{ ('https://' + nexus_domain + '/') | b64encode }}"
         SONARQUBE_URL: "{{ ('https://' + sonar_domain + '/') | b64encode }}"
         VAULT_URL: "{{ ('https://' + vault_domain + '/') | b64encode }}"
+        OPENBAO_URL: "{{ ('https://' + openbao_domain + '/') | b64encode }}"
         HARBOR_ADMIN: "{{ 'admin' | b64encode }}"
         # HARBOR_ADMIN_PASSWORD: roles/harbor/tasks/main.yaml
         KEYCLOAK_ADMIN: "{{ 'admin' | b64encode }}"
