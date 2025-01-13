@@ -1,0 +1,14 @@
+{
+  "env": "dso-hp",
+  "provider": "self-hosted",
+  "region": "fr-par",
+  "prefix": "testcm-",
+  "destination": {
+    "clusterName": "dso-hp"
+  },
+  "targetRevision": "refactor/gitops-install",
+  "apps": [
+    { "app": "keycloak", "enabled": "false", "namespace": "keycloak", "syncWave": 10 },
+    { "app": "kubeview", "enabled": "true", "namespace": "kubeview", "syncWave": 10 }
+  ]
+}
