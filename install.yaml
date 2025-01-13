@@ -21,6 +21,11 @@
       tags:
         - always
 
+    - name: imagepullsecret
+      tags:
+        - always
+      when: use_image_pull_secrets
+
     - role: kyverno
       tags:
         - kyverno
