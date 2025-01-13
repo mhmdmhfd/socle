@@ -1,0 +1,32 @@
+---
+- name: Installation du socle DSO en mode GitOps
+  hosts: localhost
+  gather_facts: false
+
+  roles:
+    - name: socle-config
+      tags:
+        - always
+
+    - name: ca
+      tags:
+        - always
+
+    - name: console-dso-config
+      tags:
+        - always
+
+    - name: imagepullsecret
+      tags:
+        - always
+      when: use_image_pull_secrets
+
+    - name: gitops/argocd
+      tags:
+        - gitops
+        - argocd
+        - argo
+
+    - name: gitops/kubeview
+      tags:
+        - kubeview
