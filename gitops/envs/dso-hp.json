@@ -6,7 +6,7 @@
   "destination": {
     "clusterName": "dso-hp"
   },
-  "targetRevision": "refactor/gitops-install",
+  "targetRevision": "refactor/gitops",
   "apps": [
     { "app": "keycloak", "enabled": "false", "namespace": "keycloak","syncWave": 10 }
   ]
