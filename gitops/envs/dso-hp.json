@@ -4,7 +4,7 @@
   "region": "fr-par",
   "prefix": "dso-",
   "destination": {
-    "clusterName": "dso-hp"
+    "clusterName": "in-cluster"
   },
   "targetRevision": "refactor/gitops",
   "apps": [
