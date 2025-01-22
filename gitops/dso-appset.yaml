@@ -51,7 +51,7 @@ spec:
           - name: AVP_SECRET
             value: vault-plugin-secret
           - name: HELM_ARGS
-            value: -f values/{{.env}}.yaml
+            value: -f ./values/{{.env}}.yaml
           - name: HELM_VALUES
             value: ''
       destination:
