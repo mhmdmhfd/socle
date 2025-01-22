@@ -6,7 +6,7 @@
 # The roles & rolebindings created will be namespaced rather than cluster scoped
 limitNamespace: false
 
-replicaCount: <path:forge-dso/env/dso-hp/apps/keycloak/namespace/testcm-kubeview/values#replicas>
+replicaCount: <path:forge-dso/env/dso-hp/apps/kubeview/namespace/testcm-kubeview/values#replicas>
 
 image:
   repository: ghcr.io/benc-uk/kubeview
