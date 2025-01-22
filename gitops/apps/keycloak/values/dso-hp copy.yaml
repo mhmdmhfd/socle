@@ -1,6 +1,6 @@
 keycloak:
   auth:
-    adminUser: admin
+    adminUser: <path:forge-dso/env/dso-hp/apps/keycloak/namespace/testcm-keycloak/values#admin>
     existingSecret: keycloak
     passwordSecretKey: admin-password
   production: true
@@ -40,7 +40,7 @@ keycloak:
     enabled: true
     ingressClassName: openshift-default # secret Vault
     pathType: "Prefix"
-    hostname: "keycloak.apps.dso.hp.numerique-interieur.com"
+    hostname: <path:forge-dso/env/dso-hp/apps/keycloak/namespace/testcm-keycloak/values#domain>
     path: /
     annotations:
       cert-manager.io/cluster-issuer: acme-issuer # secret Vault
