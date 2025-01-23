@@ -1,0 +1,6 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: testcm
+data:
+  replicas: <path:forge-dso/data/test#replicas>
