@@ -1,5 +1,5 @@
 {
-  "env": "dso-hp",
+  "env": "dso-hp-testcm",
   "provider": "self-hosted",
   "region": "fr-par",
   "prefix": "testcm-",

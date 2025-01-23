@@ -7,7 +7,7 @@ kubeview:
   # The roles & rolebindings created will be namespaced rather than cluster scoped
   limitNamespace: false
 
-  replicaCount: <path:forge-dso/data/env/dso-hp/apps/kubeview/values#replicas>
+  replicaCount: <path:forge-dso/data/env/dso-hp-testcm/apps/kubeview/values#replicas>
 
   image:
     repository: ghcr.io/benc-uk/kubeview
