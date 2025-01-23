@@ -32,7 +32,7 @@ keycloak:
         - sh
       args:
         - -c
-        - curl -k -L -f -S -o /extensions/keycloak-theme-dsfr.jar https://github.com/codegouvfr/keycloak-theme-dsfr/releases/download/v1.0.3/retrocompat-keycloak-theme.jar
+        - curl -k -L -f -S -o /emptydir/keycloak-theme-dsfr.jar https://github.com/codegouvfr/keycloak-theme-dsfr/releases/download/v1.0.3/retrocompat-keycloak-theme.jar
       volumeMounts:
         - name: empty-dir
           mountPath: /emptydir
