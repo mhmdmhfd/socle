@@ -1,0 +1,8 @@
+keycloak:
+  auth:
+    adminUser: <path:forge-dso/data/env/dso-hp-testcm/apps/keycloak/values#admin>
+  ingress:
+    ingressClassName: <path:forge-dso/data/env/dso-hp-testcm/apps/keycloak/values#ingressClassName>
+    hostname: <path:forge-dso/data/env/dso-hp-testcm/apps/keycloak/values#domain>
+    annotations:
+      cert-manager.io/cluster-issuer: <path:forge-dso/data/env/dso-hp-testcm/apps/keycloak/values#cluster-issuer>

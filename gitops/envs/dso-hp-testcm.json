@@ -9,6 +9,6 @@
   "targetRevision": "refactor/gitops",
   "apps": [
     { "app": "keycloak", "enabled": "false", "namespace": "keycloak", "syncWave": 10 },
-    { "app": "kubeview", "enabled": "true", "namespace": "kubeview", "syncWave": 10 }
+    { "app": "kubeview", "enabled": "false", "namespace": "kubeview", "syncWave": 10 }
   ]
 }
