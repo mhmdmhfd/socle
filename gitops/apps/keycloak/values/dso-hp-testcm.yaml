@@ -1,6 +1,7 @@
 keycloak:
   auth:
     adminUser: <path:forge-dso/data/env/dso-hp-testcm/apps/keycloak/values#admin>
+    adminPassword: <path:forge-dso/data/env/dso-hp-testcm/apps/keycloak/values#adminPassword>
   ingress:
     ingressClassName: <path:forge-dso/data/env/dso-hp-testcm/apps/keycloak/values#ingressClassName>
     hostname: <path:forge-dso/data/env/dso-hp-testcm/apps/keycloak/values#domain>
