@@ -21,12 +21,7 @@
         - always
       when: use_image_pull_secrets
 
-    - name: gitops/argocd
+    - name: gitops/dso-app
       tags:
-        - gitops
-        - argocd
-        - argo
+        - dso-app
 
-    - name: gitops/kubeview
-      tags:
-        - kubeview
