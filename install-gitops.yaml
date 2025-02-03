@@ -21,7 +21,10 @@
         - always
       when: use_image_pull_secrets
 
-    - name: gitops/dso-app
+    - name: gitops/vault-secrets
       tags:
-        - dso-app
+        - vault-secrets
 
+#    - name: gitops/dso-app
+#      tags:
+#        - dso-app

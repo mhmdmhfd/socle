@@ -1,0 +1,77 @@
+# Get envs from gitops
+
+#- name: Get platform env configs
+#  ansible.builtin.command: yq '.' "{{ item }}"
+#  register: platform_envs_raw
+#  loop: "{{ query('fileglob', './gitops/envs/*.json') | sort }}"
+#  changed_when: false
+#
+#- name: Set platform env configs
+#  ansible.builtin.set_fact:
+#    platform_envs: "{{ (platform_envs |
+#      default([])) + [{\"conf\": (platform_envs_raw.stdout |
+#      from_json), \"file\": (platform_envs_raw.item | basename)}] }}"
+#  loop: "{{ platform_envs_raw.results }}"
+#  loop_control:
+#    loop_var: platform_envs_raw
+
+- name: Debug
+  ansible.builtin.debug:
+    msg: "path: forge-dso/data/env/{{ item.0.name }}/apps/{{ item.1.argocd_app }}/values"
+  loop: "{{ envs | subelements('apps') }}"
+  loop_control:
+    label: "{{ item.0.name }}"
+  vars:
+    envs:
+      - name: dso-hp-testcm
+        apps:
+          - argocd_app: "keycloak"
+            vault_values:
+              auth:
+                adminUser: "admin"
+                adminPassword: "{{ lookup('ansible.builtin.password', '/dev/null', length=24, chars=['ascii_letters', 'digits']) }}"
+              ingress:
+                ingressClassName: ""
+                hostname: ""
+                annotations:
+                  cert-manager.io/cluster-issuer: ""
+          - argocd_app: "kubeview"
+            vault_values:
+              replicaCount: 3
+
+- meta: end_play
+
+
+# Setup vault secrets
+
+- name: Setup secrets
+  ansible.builtin.include_tasks: write.yml
+  vars:
+    envs:
+      dso-hp-testcm:
+        - argocd_app: "keycloak"
+          vault_values:
+            auth:
+              adminUser: "admin"
+              adminPassword: "{{ lookup('ansible.builtin.password', '/dev/null', length=24, chars=['ascii_letters', 'digits']) }}"
+            ingress:
+              ingressClassName: ""
+              hostname: ""
+              annotations:
+                cert-manager.io/cluster-issuer: ""
+#      domain: "sso.{{ rootDomain }}"
+#      extras:
+#        realm: "homelab"
+#      admin:
+#        username: "admin"
+#        password: "{{ lookup('ansible.builtin.password', '/dev/null', length=24, chars=['ascii_letters', 'digits']) }}"
+#      postgres:
+#        host: "keycloak-pg-cluster-rw"
+#        port: "5432"
+#        database: "keycloak"
+#        admin:
+#          username: "postgres"
+#          password: "{{ lookup('ansible.builtin.password', '/dev/null', length=24, chars=['ascii_letters', 'digits']) }}"
+#        app:
+#          username: "keycloak"
+#          password: "{{ lookup('ansible.builtin.password', '/dev/null', length=24, chars=['ascii_letters', 'digits']) }}"
