@@ -1,0 +1,17 @@
+---
+envs:
+  - name: dso-hp-testcm
+    apps:
+      - argocd_app: "keycloak"
+        vault_values:
+          auth:
+            adminUser: "admin"
+            adminPassword: "{{ lookup('ansible.builtin.password', '/dev/null', length=24, chars=['ascii_letters', 'digits']) }}"
+          ingress:
+            ingressClassName: "openshift-default"
+            hostname: "testcm-keycloak.apps.dso.hp.numerique-interieur.com"
+            annotations:
+              cert-manager.io/cluster-issuer: "acme-issuer"
+      - argocd_app: "kubeview"
+        vault_values:
+          replicaCount: 3

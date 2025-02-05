@@ -1,9 +1,9 @@
 keycloak:
   auth:
-    adminUser: <path:forge-dso/data/env/dso-hp/apps/keycloak/values#admin>
-    adminPassword: <path:forge-dso/data/env/dso-hp/apps/keycloak/values#adminPassword>
+    adminUser: <path:forge-dso/data/env/dso-hp/apps/keycloak/values#auth | jsonPath {.adminUser}>
+    adminPassword: <path:forge-dso/data/env/dso-hp/apps/keycloak/values#auth | jsonPath {.adminPassword}>
   ingress:
-    ingressClassName: <path:forge-dso/data/env/dso-hp/apps/keycloak/values#ingressClassName>
-    hostname: <path:forge-dso/data/env/dso-hp/apps/keycloak/values#domain>
+    ingressClassName: <path:forge-dso/data/env/dso-hp/apps/keycloak/values#ingress | jsonPath {.ingressClassName}>
+    hostname: <path:forge-dso/data/env/dso-hp/apps/keycloak/values#ingress | jsonPath {.hostname}>
     annotations:
-      cert-manager.io/cluster-issuer: <path:forge-dso/data/env/dso-hp/apps/keycloak/values#cluster-issuer>
+      cert-manager.io/cluster-issuer: <path:forge-dso/data/env/dso-hp/apps/keycloak/values#ingress | jsonPath {.annotations.cert-manager.io/cluster-issuer}>

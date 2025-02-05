@@ -25,6 +25,6 @@
       tags:
         - vault-secrets
 
-#    - name: gitops/dso-app
-#      tags:
-#        - dso-app
+    - name: gitops/dso-app
+      tags:
+        - dso-app
