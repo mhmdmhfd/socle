@@ -5,7 +5,7 @@ envs:
       - argocd_app: "keycloak"
         vault_values:
           global:
-            imageRegistry: "{{ harbor_domain }}/dockerhub""
+            imageRegistry: "{{ harbor_domain }}/dockerhub"
           auth:
             adminUser: "admin"
             adminPassword: "{{ lookup('ansible.builtin.password', '/dev/null', length=24, chars=['ascii_letters', 'digits']) }}"
