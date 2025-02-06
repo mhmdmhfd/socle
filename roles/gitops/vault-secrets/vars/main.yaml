@@ -6,6 +6,8 @@ envs:
         vault_values:
           global:
             imageRegistry: "{{ dsc.global.registry }}"
+          image:
+            registry: "{{ dsc.global.registry }}"
           auth:
             adminUser: "admin"
             adminPassword: "{{ lookup('ansible.builtin.password', '/dev/null', length=24, chars=['ascii_letters', 'digits']) }}"
