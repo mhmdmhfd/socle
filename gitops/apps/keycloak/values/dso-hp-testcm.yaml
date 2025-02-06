@@ -1,4 +1,6 @@
 keycloak:
+  global:
+    imageRegistry: <path:forge-dso/data/env/dso-hp-testcm/apps/keycloak/values#global | jsonPath {.imageRegistry}>
   auth:
     adminUser: <path:forge-dso/data/env/dso-hp-testcm/apps/keycloak/values#auth | jsonPath {.adminUser}>
     adminPassword: <path:forge-dso/data/env/dso-hp-testcm/apps/keycloak/values#auth | jsonPath {.adminPassword}>

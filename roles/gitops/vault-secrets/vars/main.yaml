@@ -4,12 +4,14 @@ envs:
     apps:
       - argocd_app: "keycloak"
         vault_values:
+          global:
+            imageRegistry: "{{ harbor_domain }}/dockerhub""
           auth:
             adminUser: "admin"
             adminPassword: "{{ lookup('ansible.builtin.password', '/dev/null', length=24, chars=['ascii_letters', 'digits']) }}"
           ingress:
             ingressClassName: "openshift-default"
-            hostname: "testcm-keycloak.apps.dso.hp.numerique-interieur.com"
+            hostname: "{{ keycloak_domain }}"
             annotations:
               cert-manager.io/cluster-issuer: "acme-issuer"
       - argocd_app: "kubeview"
