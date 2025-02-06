@@ -13,7 +13,7 @@ envs:
             ingressClassName: "openshift-default"
             hostname: "{{ keycloak_domain }}"
             annotations:
-              cert-manager.io/cluster-issuer: "acme-issuer"
+              cluster-issuer: "acme-issuer"
       - argocd_app: "kubeview"
         vault_values:
           replicaCount: 3
