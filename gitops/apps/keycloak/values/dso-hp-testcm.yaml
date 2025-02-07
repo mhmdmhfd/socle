@@ -8,13 +8,13 @@ keycloak:
     adminPassword: <path:forge-dso/data/env/dso-hp-testcm/apps/keycloak/values#auth | jsonPath {.adminPassword}>
   initContainers:
     - name: realm-ext-provider
-      image: <path:forge-dso/data/env/dso-hp-testcm/apps/keycloak/values#global | jsonPath {.imageRegistry}>/curlimages/curl:<path:forge-dso/data/env/dso-hp-testcm/apps/keycloak/values#initContainers | jsonPath {.curlVersion}>
+      image: <path:forge-dso/data/env/dso-hp-testcm/apps/keycloak/values#global | jsonPath {.imageRegistry}>/curlimages/curl:<path:forge-dso/data/env/dso-hp-testcm/apps/keycloak/values#initcontainers | jsonPath {.curlVersion}>
       imagePullPolicy: IfNotPresent
       command:
         - sh
       args:
         - -c
-        - curl -k -L -f -S -o /emptydir/app-providers-dir/keycloak-theme-dsfr.jar <path:forge-dso/data/env/dso-hp-testcm/apps/keycloak/values#initContainers | jsonPath {.pluginDownloadUrl}>
+        - curl -k -L -f -S -o /emptydir/app-providers-dir/keycloak-theme-dsfr.jar <path:forge-dso/data/env/dso-hp-testcm/apps/keycloak/values#initcontainers | jsonPath {.pluginDownloadUrl}>
       volumeMounts:
         - name: empty-dir
           mountPath: /emptydir

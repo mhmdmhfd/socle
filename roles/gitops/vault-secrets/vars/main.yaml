@@ -11,7 +11,7 @@ envs:
           auth:
             adminUser: "admin"
             adminPassword: "{{ lookup('ansible.builtin.password', '/dev/null', length=24, chars=['ascii_letters', 'digits']) }}"
-          initContainers:
+          initcontainers:
             curlVersion: 8.8.0
             pluginDownloadUrl: "{{ dsc.keycloak.pluginDownloadUrl }}"
           ingress:
