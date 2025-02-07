@@ -6,6 +6,9 @@ keycloak:
   auth:
     adminUser: <path:forge-dso/data/env/dso-hp-testcm/apps/keycloak/values#auth | jsonPath {.adminUser}>
     adminPassword: <path:forge-dso/data/env/dso-hp-testcm/apps/keycloak/values#auth | jsonPath {.adminPassword}>
+  initContainers:
+    - name: realm-ext-provider
+      image: <path:forge-dso/data/env/dso-hp-testcm/apps/keycloak/values#global | jsonPath {.imageRegistry}>/curlimages/curl:8.8.0
   ingress:
     ingressClassName: <path:forge-dso/data/env/dso-hp-testcm/apps/keycloak/values#ingress | jsonPath {.ingressClassName}>
     hostname: <path:forge-dso/data/env/dso-hp-testcm/apps/keycloak/values#ingress | jsonPath {.hostname}>
