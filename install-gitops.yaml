@@ -28,3 +28,8 @@
     - name: gitops/dso-app
       tags:
         - dso-app
+
+    - name: gitops/post-install/keycloak
+      tags:
+        - post-install
+        - post-install-keycloak
