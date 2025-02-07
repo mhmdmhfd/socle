@@ -11,6 +11,9 @@ envs:
           auth:
             adminUser: "admin"
             adminPassword: "{{ lookup('ansible.builtin.password', '/dev/null', length=24, chars=['ascii_letters', 'digits']) }}"
+          initContainers:
+            curlVersion: 8.8.0
+            pluginDownloadUrl: "{{ dsc.keycloak.pluginDownloadUrl }}"
           ingress:
             ingressClassName: "openshift-default"
             hostname: "{{ keycloak_domain }}"
