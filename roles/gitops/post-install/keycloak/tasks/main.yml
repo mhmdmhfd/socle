@@ -15,7 +15,7 @@
   kubernetes.core.k8s_info:
     namespace: "{{ dsc.keycloak.namespace }}"
     kind: Secret
-    name: "{{ dsc.keycloak.namespace }}"
+    name: keycloak-admin
   register: kc_adm_pass_secret
 
 #- name: Set Keycloak admin password secret
@@ -28,13 +28,13 @@
 #      data:
 #        admin-password: "{{ lookup('password', '/dev/null length=24 chars=ascii_letters,digits') | b64encode }}"
 #      metadata:
-#        name: "{{ dsc.keycloak.namespace }}"
+#        name: keycloak-admin
 #        namespace: "{{ dsc.keycloak.namespace }}"
 #      type: Opaque
 
 - name: Reset Keycloak admin password
-#  when: >
-#    kc_adm_pass_secret.resources | length == 0
+  when: >
+    kc_adm_pass_secret.resources | length == 0
   block:
     - name: Get Keycloak primary BDD pod
       kubernetes.core.k8s_info:
@@ -137,7 +137,7 @@
       kubernetes.core.k8s_info:
         namespace: "{{ dsc.keycloak.namespace }}"
         kind: Secret
-        name: "{{ dsc.keycloak.namespace }}"
+        name: keycloak-admin
       register: kc_adm_pass
 
     - name: Get Vault Infra keys
@@ -184,7 +184,7 @@
   kubernetes.core.k8s_info:
     namespace: "{{ dsc.keycloak.namespace }}"
     kind: Secret
-    name: "{{ dsc.keycloak.namespace }}"
+    name: keycloak-admin
   register: kc_adm_pass
 
 - name: Set Keycloak admin name fact
