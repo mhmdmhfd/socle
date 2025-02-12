@@ -1,6 +1,8 @@
 keycloak:
   auth:
     adminUser: "admin"
+    existingSecret: "keycloak-admin"
+    passwordSecretKey: "admin-password"
   production: true
   proxyHeaders: xforwarded
   extraEnvVars:

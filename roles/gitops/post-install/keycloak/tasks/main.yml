@@ -1,35 +1,40 @@
 ---
+- name: Wait Keycloak URL
+  ansible.builtin.uri:
+    url: https://{{ keycloak_domain }}
+    validate_certs: "{{ dsc.exposedCA.type == 'none' }}"
+    method: GET
+    status_code: [200, 202]
+    return_content: false
+  register: kc_response
+  until: kc_response is not failed
+  retries: 30
+  delay: 5
+
 - name: Get Keycloak admin password secret
   kubernetes.core.k8s_info:
     namespace: "{{ dsc.keycloak.namespace }}"
     kind: Secret
-    name: keycloak
+    name: "{{ dsc.keycloak.namespace }}"
   register: kc_adm_pass_secret
 
-- name: Set Keycloak admin password secret
-  when: kc_adm_pass_secret.resources | length == 0
-  kubernetes.core.k8s:
-    state: present
-    definition:
-      apiVersion: v1
-      kind: Secret
-      data:
-        admin-password: "{{ lookup('password', '/dev/null length=24 chars=ascii_letters,digits') | b64encode }}"
-      metadata:
-        name: keycloak
-        namespace: "{{ dsc.keycloak.namespace }}"
-      type: Opaque
-
-- name: Check Keycloak helm release
-  kubernetes.core.helm_info:
-    name: keycloak
-    namespace: "{{ dsc.keycloak.namespace }}"
-  register: kc_helm_release
+#- name: Set Keycloak admin password secret
+#  when: kc_adm_pass_secret.resources | length == 0
+#  kubernetes.core.k8s:
+#    state: present
+#    definition:
+#      apiVersion: v1
+#      kind: Secret
+#      data:
+#        admin-password: "{{ lookup('password', '/dev/null length=24 chars=ascii_letters,digits') | b64encode }}"
+#      metadata:
+#        name: "{{ dsc.keycloak.namespace }}"
+#        namespace: "{{ dsc.keycloak.namespace }}"
+#      type: Opaque
 
 - name: Reset Keycloak admin password
-  when: >
-    kc_helm_release.status is defined and
-    kc_adm_pass_secret.resources | length == 0
+#  when: >
+#    kc_adm_pass_secret.resources | length == 0
   block:
     - name: Get Keycloak primary BDD pod
       kubernetes.core.k8s_info:
@@ -37,6 +42,7 @@
         label_selectors:
           - "cnpg.io/cluster=pg-cluster-keycloak"
           - "cnpg.io/instanceRole=primary"
+        namespace: "{{ dsc.keycloak.namespace }}"
       register: kc_bdd_pod
 
     - name: Get Keycloak admin ID from database
@@ -60,6 +66,29 @@
           -c "delete from user_role_mapping where user_id = '"{{ kc_admin_id }}"';"
           -c "delete from user_entity where id = '"{{ kc_admin_id }}"';"
           -c "delete from user_required_action where user_id = '"{{ kc_admin_id }}"';"
+          -c "delete from user_attribute where user_id = '"{{ kc_admin_id }}"';"
+
+    - name: Get Keycloak master realm ID from database
+      kubernetes.core.k8s_exec:
+        pod: "{{ kc_bdd_pod.resources[0].metadata.name }}"
+        namespace: "{{ dsc.keycloak.namespace }}"
+        command: >
+          psql -U postgres -d keycloak --csv -c "\x" -c "select id from realm where realm.name = 'master';"
+      register: kc_master_realm_id
+
+    - name: Set kc_master_realm_id fact
+      ansible.builtin.set_fact:
+        kc_master_realm_id: "{{ kc_master_realm_id.stdout | regex_search('^id.*', multiline=True) | regex_search('id,(.+)', '\\1') | first }}"
+
+    - debug:
+        msg: "{{ kc_master_realm_id }}"
+
+    - name: Replace master realm ID in user_entity table
+      kubernetes.core.k8s_exec:
+        pod: "{{ kc_bdd_pod.resources[0].metadata.name }}"
+        namespace: "{{ dsc.keycloak.namespace }}"
+        command: >
+          psql -U postgres -d keycloak -c "update user_entity set realm_id='banana' where realm_id='"{{ kc_admin_id }}"';"
 
     - name: Restart Keycloak pods to reset admin password
       kubernetes.core.k8s:
@@ -67,7 +96,7 @@
         namespace: "{{ dsc.keycloak.namespace }}"
         label_selectors:
           - "app.kubernetes.io/component=keycloak"
-          - "app.kubernetes.io/instance=keycloak"
+          - "app.kubernetes.io/instance={{ dsc.keycloak.namespace }}"
         state: absent
 
     - name: Wait Keycloak URL
@@ -82,23 +111,80 @@
       retries: 30
       delay: 5
 
-- name: Wait Keycloak URL
-  ansible.builtin.uri:
-    url: https://{{ keycloak_domain }}
-    validate_certs: "{{ dsc.exposedCA.type == 'none' }}"
-    method: GET
-    status_code: [200, 202]
-    return_content: false
-  register: kc_response
-  until: kc_response is not failed
-  retries: 30
-  delay: 5
+    - name: Get Keycloak master realm ID from database
+      kubernetes.core.k8s_exec:
+        pod: "{{ kc_bdd_pod.resources[0].metadata.name }}"
+        namespace: "{{ dsc.keycloak.namespace }}"
+        command: >
+          psql -U postgres -d keycloak --csv -c "\x" -c "select id from realm where realm.name = 'master';"
+      register: kc_master_realm_id
+
+    - name: Set kc_master_realm_id fact
+      ansible.builtin.set_fact:
+        kc_master_realm_id: "{{ kc_master_realm_id.stdout | regex_search('^id.*', multiline=True) | regex_search('id,(.+)', '\\1') | first }}"
+
+    - debug:
+        msg: "{{ kc_master_realm_id }}"
+
+    - name: Replace master realm ID in user_entity table
+      kubernetes.core.k8s_exec:
+        pod: "{{ kc_bdd_pod.resources[0].metadata.name }}"
+        namespace: "{{ dsc.keycloak.namespace }}"
+        command: >
+          psql -U postgres -d keycloak -c "update user_entity set realm_id='"{{ kc_admin_id }}"' where realm_id='banana';"
+
+    - name: Get Keycloak admin password
+      kubernetes.core.k8s_info:
+        namespace: "{{ dsc.keycloak.namespace }}"
+        kind: Secret
+        name: "{{ dsc.keycloak.namespace }}"
+      register: kc_adm_pass
+
+    - name: Get Vault Infra keys
+      kubernetes.core.k8s_info:
+        namespace: "{{ dsc.vaultInfra.namespace }}"
+        kind: Secret
+        name: "{{ dsc_name }}-vault-keys"
+      register: vault_infra_keys
+
+    - name: Get Vault Infra token
+      ansible.builtin.set_fact:
+        vault_infra_token: "{{ vault_infra_keys.resources[0].data.root_token | b64decode }}"
+
+    - name: Retrieve current vault secret
+      community.hashi_vault.vault_kv2_get:
+        url: "https://{{ vaultinfra_domain }}"
+        auth_method: token
+        token: "{{ vault_infra_token }}"
+        namespace: "{{ dsc.vaultInfra.namespace }}"
+        engine_mount_point: "forge-dso"
+        path: "env/dso-hp-testcm/apps/keycloak/values"
+      register: current_vault_values
+      ignore_errors: true
+
+    - name: Update vault secret
+      vars:
+        values_to_update:
+          auth:
+            adminPassword: "{{ kc_adm_pass.resources[0].data['admin-password'] | b64decode }}"
+      community.hashi_vault.vault_kv2_write:
+        url: "https://{{ vaultinfra_domain }}"
+        auth_method: token
+        token: "{{ vault_infra_token }}"
+        namespace: "{{ dsc.vaultInfra.namespace }}"
+        engine_mount_point: "forge-dso"
+        path: "env/dso-hp-testcm/apps/keycloak/values"
+        data: >-
+          {{
+            current_vault_values.secret
+            | combine(values_to_update)
+          }}
 
 - name: Get Keycloak admin password
   kubernetes.core.k8s_info:
     namespace: "{{ dsc.keycloak.namespace }}"
     kind: Secret
-    name: keycloak
+    name: "{{ dsc.keycloak.namespace }}"
   register: kc_adm_pass
 
 - name: Set Keycloak admin name fact
@@ -116,6 +202,12 @@
       data:
         KEYCLOAK_ADMIN_PASSWORD: "{{ keycloak_admin_password | b64encode }}"
         KEYCLOAK_ADMIN: "{{ keycloak_admin | b64encode }}"
+
+
+
+- meta: end_play
+
+
 
 - name: Get Keycloak API token
   ansible.builtin.uri:
