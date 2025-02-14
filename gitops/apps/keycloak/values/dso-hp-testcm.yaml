@@ -20,3 +20,6 @@ keycloak:
     hostname: <path:forge-dso/data/env/dso-hp-testcm/apps/keycloak/values#ingress | jsonPath {.hostname}>
     annotations:
       cert-manager.io/cluster-issuer: <path:forge-dso/data/env/dso-hp-testcm/apps/keycloak/values#ingress | jsonPath {.annotations.cluster-issuer}>
+  podSecurityContext:
+    enabled: true
+    fsGroup: 1001
