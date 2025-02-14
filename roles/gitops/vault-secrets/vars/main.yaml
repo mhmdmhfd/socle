@@ -14,7 +14,7 @@ envs:
             curlVersion: 8.8.0
             pluginDownloadUrl: "{{ dsc.keycloak.pluginDownloadUrl }}"
           ingress:
-            ingressClassName: "openshift-default"
+            ingressClassName: "{{ dsc.ingress.className }}"
             hostname: "{{ keycloak_domain }}"
             annotations:
               cluster-issuer: "acme-issuer"
