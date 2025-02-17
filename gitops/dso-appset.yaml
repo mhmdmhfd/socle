@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: dso-install-manager
+  name: dso-install-appset
   namespace: infra-argo
 spec:
   goTemplate: true
