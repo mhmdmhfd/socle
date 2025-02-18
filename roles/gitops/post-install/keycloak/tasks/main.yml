@@ -8,33 +8,127 @@
     return_content: false
   register: kc_response
   until: kc_response is not failed
-  retries: 30
+  retries: 45
   delay: 5
+
+# Retrieve admin credentials
 
 - name: Get Keycloak admin password secret
   kubernetes.core.k8s_info:
     namespace: "{{ dsc.keycloak.namespace }}"
     kind: Secret
     name: keycloak-admin
-  register: kc_adm_pass_secret
+  register: kc_adm_pass
 
-#- name: Set Keycloak admin password secret
-#  when: kc_adm_pass_secret.resources | length == 0
-#  kubernetes.core.k8s:
-#    state: present
-#    definition:
-#      apiVersion: v1
-#      kind: Secret
-#      data:
-#        admin-password: "{{ lookup('password', '/dev/null length=24 chars=ascii_letters,digits') | b64encode }}"
-#      metadata:
-#        name: keycloak-admin
-#        namespace: "{{ dsc.keycloak.namespace }}"
-#      type: Opaque
+- name: Set Keycloak admin facts
+  ansible.builtin.set_fact:
+    keycloak_admin_password: "{{ kc_adm_pass.resources[0].data['admin-password'] | b64decode }}"
+    keycloak_admin: admin
+
+# Check if permanent admin already exists
+
+- name: Get Keycloak API token
+  ansible.builtin.uri:
+    url: https://{{ keycloak_domain }}/realms/master/protocol/openid-connect/token
+    method: POST
+    status_code: [200, 202]
+    validate_certs: "{{ dsc.exposedCA.type == 'none' }}"
+    return_content: true
+    body: username={{ keycloak_admin }}&password={{ keycloak_admin_password }}&grant_type=password&client_id=admin-cli
+  register: kc_token
+
+- name: Set kc_access_token fact
+  ansible.builtin.set_fact:
+    kc_access_token: "{{ kc_token.json.access_token }}"
+
+- name: Get keycloak master realm users from API
+  ansible.builtin.uri:
+    url: https://{{ keycloak_domain }}/admin/realms/master/users
+    method: GET
+    status_code: [200, 202]
+    return_content: true
+    validate_certs: "{{ dsc.exposedCA.type == 'none' }}"
+    body_format: json
+    headers:
+      Authorization: bearer {{ kc_access_token }}
+  register: kc_master_users
+
+- name: Set admin_present fact
+  ansible.builtin.set_fact:
+    admin_present: false
+
+- name: Update admin_present fact
+  when: kc_master_users.json | selectattr('username', 'equalto', 'dsoadmin')
+  ansible.builtin.set_fact:
+    admin_present: true
+
+- name: Debug
+  when: admin_present
+  ansible.builtin.debug:
+    msg: "OK"
+
+- meta: end_play
+
+
+- name: Create permanent admin group and user into master realm
+  when: not admin_present
+  block:
+    - name: Create admin group
+      community.general.keycloak_group:
+        auth_client_id: admin-cli
+        auth_keycloak_url: https://{{ keycloak_domain }}
+        auth_realm: master
+        auth_username: "{{ keycloak_admin }}"
+        auth_password: "{{ keycloak_admin_password }}"
+        name: admin
+        realm: master
+        state: present
+
+    - name: Map admin realm role from admin group
+      community.general.keycloak_realm_rolemapping:
+        realm: master
+        auth_client_id: admin-cli
+        auth_keycloak_url: https://{{ keycloak_domain }}
+        auth_realm: master
+        auth_username: "{{ keycloak_admin }}"
+        auth_password: "{{ keycloak_admin_password }}"
+        state: present
+        group_name: admin
+        roles:
+          - name: admin
+
+    - name: Create master realm permanent admin user
+      community.general.keycloak_user:
+        validate_certs: "{{ dsc.exposedCA.type == 'none' }}"
+        auth_client_id: admin-cli
+        auth_keycloak_url: https://{{ keycloak_domain }}
+        auth_realm: master
+        auth_username: "{{ keycloak_admin }}"
+        auth_password: "{{ keycloak_admin_password }}"
+        state: present
+        realm: master
+        credentials:
+          - temporary: false
+            type: password
+            value: "{{ keycloak_admin_password }}"
+        username: dsoadmin
+        first_name: Admin
+        last_name: Admin
+        email: admin@example.com
+        enabled: true
+        email_verified: true
+        groups:
+          - name: admin
+            state: present
+
+
+
+- meta: end_play
+
 
 - name: Reset Keycloak admin password
   when: >
-    kc_adm_pass_secret.resources | length == 0
+    kc_adm_pass.resources | length == 0
   block:
     - name: Get Keycloak primary BDD pod
       kubernetes.core.k8s_info:
