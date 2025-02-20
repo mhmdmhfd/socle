@@ -9,7 +9,6 @@ envs:
           image:
             registry: "{{ dsc.global.registry }}"
           auth:
-            adminUser: "{{ dsc.keycloak.adminUser }}"
             adminPassword: "{{ lookup('ansible.builtin.password', '/dev/null', length=24, chars=['ascii_letters', 'digits']) }}"
           initcontainers:
             curlVersion: 8.8.0

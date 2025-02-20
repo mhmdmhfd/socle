@@ -993,9 +993,6 @@ spec:
                 keycloak:
                   description: Configuration for Keycloak.
                   properties:
-                    adminUser:
-                      description: The name of Keycloak admin user for master realm
-                      type: string
                     namespace:
                       description: The namespace for Keycloak.
                       type: string
