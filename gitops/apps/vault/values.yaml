@@ -1,0 +1,15 @@
+vault:
+  server:
+    route:
+      enabled: false
+    ha:
+      enabled: true
+      replicas: 3
+      raft:
+        enabled: true
+    standalone:
+      enabled: false
+    auditStorage:
+      enable: true
+    dataStorage:
+      enable: true

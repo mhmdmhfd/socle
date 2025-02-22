@@ -27,6 +27,135 @@ envs:
           podSecurityContext:
             enabled: true
             fsGroup: 1001
+      - argocd_app: "vault"
+        vault_values:
+          global:
+            image:
+              repository: "{{ dsc.global.registry }}"
+          server:
+            ha:
+              apiAddr: "https://{{ vault_domain }}"
+            dataStorage:
+              size: "{{ dsc.vault.pvcSize }}"
+          metrics:
+            enabled: "{{ dsc.global.metrics.enabled }}"
+            global:
+              serverTelemetry:
+                prometheusOperator: true
+            server:
+              ha:
+                raft:
+                  config: |
+                    ui = true                
+                    service_registration "kubernetes" {}
+                    listener "tcp" {         
+                      tls_disable = 1        
+                      address = "[::]:8200"       
+                      cluster_address = "[::]:8201"
+                      telemetry {            
+                        unauthenticated_metrics_access = "false"
+                      }                      
+                    }                        
+                    storage "raft" {         
+                      path = "/vault/data"   
+                    }                        
+                    telemetry {                       
+                      prometheus_retention_time = "30s"
+                      disable_hostname = true                                                                                        
+                    }
+            standalone:
+              config: |
+                ui = true
+                listener "tcp" {
+                  tls_disable = 1
+                  address = "[::]:8200"
+                  cluster_address = "[::]:8201"
+                  telemetry {
+                    unauthenticated_metrics_access = "false"
+                  }    
+                }      
+                storage "file" {
+                  path = "/vault/data"
+                }      
+                telemetry {
+                  prometheus_retention_time = "30s"                                                                                
+                  disable_hostname = true
+                } 
+          alerting:
+            enabled: "{{ dsc.global.alerting.enabled }}"
+            serverTelemetry:
+              prometheusRules:
+                rules:
+                  vaultSealed:
+                    annotations:
+                      message: "Vault instance in namespace {{ dsc.vault.namespace }} is sealed."
+                    expr: |
+                      max(1 + vault_core_unsealed{namespace="{{ dsc.vault.namespace }}"}) ==
+                  vaultNotHealthy:
+                    annotations:
+                      message: Vault {{"{{"}} $labels.pod {{"}}"}} pod in namespace {{ dsc.vault.namespace }} is not healthy (sealed?). Check its logs.
+                    expr: |                                          
+                      up{job="{{ dsc_name }}-vault-internal",pod=~"(.*-)*vault(-.*)*"} == 0
+                  vaultNotAvailable:
+                    annotations:
+                      message: "Vault in namespace {{ dsc.vault.namespace }} has not been available for the last 5 minutes."
+                    expr: |
+                      (absent(kube_pod_container_status_ready{
+                      pod=~"(.*-)*vault(-.*)*",
+                      container="vault",
+                      namespace="{{ dsc.vault.namespace }}"}) == 1)
+                      or sum(kube_pod_container_status_ready{
+                      pod=~"(.*-)*vault(-.*)*",
+                      container="vault",
+                      namespace="{{ dsc.vault.namespace }}"}) == 0
+                  agentInjectorNotAvailable:
+                    annotations:
+                      message: Vault agent injector in namespace {{ dsc.vault.namespace }} has not been available for the last 5 minutes.
+                    expr: |                                       
+                      (absent(kube_pod_container_status_ready{    
+                      pod=~"(.*-)*vault(-.*)*",                   
+                      container="sidecar-injector",               
+                      namespace="{{ dsc.vault.namespace }}"}) == 1)
+                      or sum(kube_pod_container_status_ready{     
+                      pod=~"(.*-)*vault(-.*)*",                   
+                      container="sidecar-injector",               
+                      namespace="{{ dsc.vault.namespace }}"}) == 0
+                  vaultPodNotHealthy:
+                    annotations:
+                      message: Vault {{"{{"}} $labels.pod {{"}}"}} pod in namespace {{ dsc.vault.namespace }} has been unavailable for the last 5 minutes.
+                    expr: |
+                      kube_pod_container_status_ready{
+                      pod!~"backup-utils-vault(-.*)*",
+                      namespace="{{ dsc.vault.namespace }}"} == 0
+                  vaultPvcLowDiskSpace:
+                    annotations:
+                    expr: |
+                      round(
+                      kubelet_volume_stats_available_bytes{
+                      persistentvolumeclaim=~"(.*-)*vault(-.*)*",
+                      namespace="{{ dsc.vault.namespace }}"}
+                      / kubelet_volume_stats_capacity_bytes{
+                      persistentvolumeclaim=~"(.*-)*vault(-.*)*",
+                      namespace="{{ dsc.vault.namespace }}"} * 100, 0.01) < 20 > 10
+                  vaultPvcAlmostOutDiskSpace:
+                    annotations:
+                      summary: Vault PVC almost out of disk space in namespace {{ dsc.vault.namespace }}
+                    expr: |                                      
+                      round(                                     
+                      kubelet_volume_stats_available_bytes{      
+                      persistentvolumeclaim=~"(.*-)*vault(-.*)*",
+                      namespace="{{ dsc.vault.namespace }}"}     
+                      / kubelet_volume_stats_capacity_bytes{     
+                      persistentvolumeclaim=~"(.*-)*vault(-.*)*",
+                      namespace="{{ dsc.vault.namespace }}"} * 100, 0.01) < 10 > 
+                  vaultPvcOutDiskSpace:
+                    annotations:
+                      message: PVC {{"{{"}} $labels.persistentvolumeclaim {{"}}"}} in namespace {{ dsc.vault.namespace }} is full (0% left).
+                      summary: Vault PVC out of disk space in namespace {{ dsc.vault.namespace }}
+                    expr: |                                
+                      kubelet_volume_stats_available_bytes{
+                      persistentvolumeclaim=~"(.*-)*vault(-.*)*",
+                      namespace="{{ dsc.vault.namespace }}"} == 0
       - argocd_app: "kubeview"
         vault_values:
           replicaCount: 3

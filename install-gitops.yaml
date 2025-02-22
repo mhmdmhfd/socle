@@ -21,6 +21,16 @@
         - always
       when: use_image_pull_secrets
 
+    - role: prometheus
+      tags:
+        - prometheus
+        - prom
+      when: dsc.prometheus.crd.type == 'managed'
+
+    - role: kyverno
+      tags:
+        - kyverno
+
     - role: cloudnativepg
       tags:
         - cloudnativepg
@@ -47,6 +57,10 @@
     - role: gitops/vault-secrets
       tags:
         - vault-secrets
+
+    - role: gitops/values
+      tags:
+        - values 
 
     - role: gitops/dso-app
       tags:
