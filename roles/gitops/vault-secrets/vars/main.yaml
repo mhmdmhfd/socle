@@ -18,6 +18,9 @@ envs:
             hostname: "{{ keycloak_domain }}"
             annotations:
               cluster-issuer: "acme-issuer"
+          podSecurityContext:
+            enabled: true
+            fsGroup: 1001
       - argocd_app: "kubeview"
         vault_values:
           replicaCount: 3
