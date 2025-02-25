@@ -22,4 +22,4 @@ keycloak:
       cert-manager.io/cluster-issuer: <path:forge-dso/data/env/dso-hp-testcm/apps/keycloak/values#ingress | jsonPath {.annotations.cluster-issuer}>
   podSecurityContext:
     enabled: <path:forge-dso/data/env/dso-hp-testcm/apps/keycloak/values#podSecurityContext | jsonPath {.enabled}>
-    fsGroup: <path:forge-dso/data/env/dso-hp-testcm/apps/keycloak/values#podSecurityContext | jsonPath {.fsGroup}>
+    fsGroup: <path:forge-dso/data/env/dso-hp-testcm/apps/keycloak/values#podSecurityContext | jsonPath {.fsGroup} | jsonParse>
