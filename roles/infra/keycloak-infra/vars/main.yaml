@@ -10,6 +10,7 @@ keycloak_clients:
     webOrigins:
       - https://{{ argocdinfra_domain }}
     defaultClientScopes:
+      - basic
       - generic
     publicClient: false
 
@@ -21,6 +22,7 @@ keycloak_clients:
     webOrigins:
       - "*"
     defaultClientScopes:
+      - basic
       - generic
     publicClient: false
 
@@ -33,5 +35,6 @@ keycloak_clients:
     webOrigins:
       - https://{{ vaultinfra_domain }}
     defaultClientScopes:
+      - basic
       - generic
     publicClient: false

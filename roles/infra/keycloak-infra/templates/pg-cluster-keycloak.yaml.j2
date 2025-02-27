@@ -17,6 +17,8 @@ spec:
   # to the default ones to make the cluster work
 {% if use_private_registry %}
   imageName: "{{ dsc.global.registry }}/cloudnative-pg/postgresql:16.1"
+{% elif dsc.keycloakInfra.cnpg.imageName is defined %}
+  imageName: "{{ dsc.keycloakInfra.cnpg.imageName }}"
 {% endif %}
 {% if use_image_pull_secrets %}
   imagePullSecrets:
@@ -51,6 +53,8 @@ spec:
   - name: pg-cluster-keycloak
 {% if dsc.keycloakInfra.cnpg.mode == "restore" %}
     barmanObjectStore:
+      wal:
+      maxParallel: 8
       destinationPath: "s3://{{ dsc.global.backup.s3.bucketName }}/{{ dsc.global.backup.cnpg.pathPrefix }}"
       endpointURL: "{{ dsc.global.backup.s3.endpointURL }}"
 {% if dsc.global.backup.s3.endpointCA.key is defined %}
