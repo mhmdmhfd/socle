@@ -60,7 +60,7 @@
 
     - role: gitops/values
       tags:
-        - values 
+        - values
 
     - role: gitops/dso-app
       tags:

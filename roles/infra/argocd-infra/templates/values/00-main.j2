@@ -1,6 +1,10 @@
 crds:
   install: true
   keep: true
+{% if dsc.global.platform == "openshift" %}
+openshift:
+  enabled: true
+{% endif %}
 configs:
 {% if dsc.argocdInfra.admin.enabled %}
   secret:
@@ -78,21 +82,25 @@ repoServer:
   initContainers:
   - name: download-tools
     image: registry.access.redhat.com/ubi8
+{% if dsc.global.platform != "openshift" %}
     securityContext:
       runAsNonRoot: true
       runAsUser: 999
       runAsGroup: 999
       fsGroup: 999
+{% endif %}
     env:
     - name: AVP_VERSION
       value: {{ dsc.argocdInfra.vaultPluginVersion }}
+{% if dsc.proxy.enabled %}
     - name: HTTP_PROXY
       value: "{{ dsc.proxy.http_proxy }}"
     - name: HTTPS_PROXY
       value: "{{ dsc.proxy.https_proxy }}"
     - name: NO_PROXY
       value: "{{ dsc.proxy.no_proxy }},{{ dsc_name }}-argo-infra-argocd-repo-server"
-    command: [sh, -c]
+{% endif %}
+      command: [sh, -c]
     args:
     - >-
       OS="$(uname | tr '[:upper:]' '[:lower:]')" && [ "$(uname -m)" = "aarch64" ] && ARCH="arm64" || ARCH="amd64" &&
@@ -105,18 +113,22 @@ repoServer:
   - name: avp
     command: [/var/run/argocd/argocd-cmp-server]
     image: quay.io/argoproj/argocd:{{ argo_app_version }}
+{% if dsc.global.platform != "openshift" %}
     securityContext:
       runAsNonRoot: true
       runAsUser: 999
       runAsGroup: 999
       fsGroup: 999
+{% endif %}
     env:
+{% if dsc.proxy.enabled %}
     - name: HTTP_PROXY
       value: "{{ dsc.proxy.http_proxy }}"
     - name: HTTPS_PROXY
       value: "{{ dsc.proxy.https_proxy }}"
     - name: NO_PROXY
       value: "{{ dsc.proxy.no_proxy }},{{ dsc_name }}-argo-infra-argocd-repo-server"
+{% endif %}
     - name: VAULT_SKIP_VERIFY
       value: "true"
     envFrom:
@@ -140,18 +152,22 @@ repoServer:
   - name: avp-helm
     command: [/var/run/argocd/argocd-cmp-server]
     image: quay.io/argoproj/argocd:{{ argo_app_version }}
+{% if dsc.global.platform != "openshift" %}
     securityContext:
       runAsNonRoot: true
       runAsUser: 999
       runAsGroup: 999
       fsGroup: 999
+{% endif %}
     env:
+{% if dsc.proxy.enabled %}
     - name: HTTP_PROXY
       value: "{{ dsc.proxy.http_proxy }}"
     - name: HTTPS_PROXY
       value: "{{ dsc.proxy.https_proxy }}"
     - name: NO_PROXY
       value: "{{ dsc.proxy.no_proxy }},{{ dsc_name }}-argo-infra-argocd-repo-server"
+{% endif %}
     - name: VAULT_SKIP_VERIFY
       value: "true" 
     envFrom:
@@ -177,18 +193,22 @@ repoServer:
   - name: avp-kustomize
     command: [/var/run/argocd/argocd-cmp-server]
     image: quay.io/argoproj/argocd:{{ argo_app_version }}
+{% if dsc.global.platform != "openshift" %}
     securityContext:
       runAsNonRoot: true
       runAsUser: 999
       runAsGroup: 999
       fsGroup: 999
+{% endif %}
     env:
+{% if dsc.proxy.enabled %}
     - name: HTTP_PROXY
       value: "{{ dsc.proxy.http_proxy }}"
     - name: HTTPS_PROXY
       value: "{{ dsc.proxy.https_proxy }}"
     - name: NO_PROXY
       value: "{{ dsc.proxy.no_proxy }},{{ dsc_name }}-argo-infra-argocd-repo-server"
+{% endif %}
     - name: VAULT_SKIP_VERIFY
       value: "true" 
     envFrom:

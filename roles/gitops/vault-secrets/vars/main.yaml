@@ -46,22 +46,22 @@ envs:
               ha:
                 raft:
                   config: |
-                    ui = true                
+                    ui = true
                     service_registration "kubernetes" {}
-                    listener "tcp" {         
-                      tls_disable = 1        
-                      address = "[::]:8200"       
+                    listener "tcp" {
+                      tls_disable = 1
+                      address = "[::]:8200"
                       cluster_address = "[::]:8201"
-                      telemetry {            
+                      telemetry {
                         unauthenticated_metrics_access = "false"
-                      }                      
-                    }                        
-                    storage "raft" {         
-                      path = "/vault/data"   
-                    }                        
-                    telemetry {                       
+                      }
+                    }
+                    storage "raft" {
+                      path = "/vault/data"
+                    }
+                    telemetry {
                       prometheus_retention_time = "30s"
-                      disable_hostname = true                                                                                        
+                      disable_hostname = true
                     }
             standalone:
               config: |
@@ -72,15 +72,15 @@ envs:
                   cluster_address = "[::]:8201"
                   telemetry {
                     unauthenticated_metrics_access = "false"
-                  }    
-                }      
+                  }
+                }
                 storage "file" {
                   path = "/vault/data"
-                }      
+                }
                 telemetry {
-                  prometheus_retention_time = "30s"                                                                                
+                  prometheus_retention_time = "30s"
                   disable_hostname = true
-                } 
+                }
           alerting:
             enabled: "{{ dsc.global.alerting.enabled }}"
             serverTelemetry:
@@ -93,8 +93,8 @@ envs:
                       max(1 + vault_core_unsealed{namespace="{{ dsc.vault.namespace }}"}) ==
                   vaultNotHealthy:
                     annotations:
-                      message: Vault {{"{{"}} $labels.pod {{"}}"}} pod in namespace {{ dsc.vault.namespace }} is not healthy (sealed?). Check its logs.
-                    expr: |                                          
+                      message: Vault {{ "{{" }} $labels.pod {{ "}}" }} pod in namespace {{ dsc.vault.namespace }} is not healthy (sealed?). Check its logs.
+                    expr: |
                       up{job="{{ dsc_name }}-vault-internal",pod=~"(.*-)*vault(-.*)*"} == 0
                   vaultNotAvailable:
                     annotations:
@@ -111,18 +111,18 @@ envs:
                   agentInjectorNotAvailable:
                     annotations:
                       message: Vault agent injector in namespace {{ dsc.vault.namespace }} has not been available for the last 5 minutes.
-                    expr: |                                       
-                      (absent(kube_pod_container_status_ready{    
-                      pod=~"(.*-)*vault(-.*)*",                   
-                      container="sidecar-injector",               
+                    expr: |
+                      (absent(kube_pod_container_status_ready{
+                      pod=~"(.*-)*vault(-.*)*",
+                      container="sidecar-injector",
                       namespace="{{ dsc.vault.namespace }}"}) == 1)
-                      or sum(kube_pod_container_status_ready{     
-                      pod=~"(.*-)*vault(-.*)*",                   
-                      container="sidecar-injector",               
+                      or sum(kube_pod_container_status_ready{
+                      pod=~"(.*-)*vault(-.*)*",
+                      container="sidecar-injector",
                       namespace="{{ dsc.vault.namespace }}"}) == 0
                   vaultPodNotHealthy:
                     annotations:
-                      message: Vault {{"{{"}} $labels.pod {{"}}"}} pod in namespace {{ dsc.vault.namespace }} has been unavailable for the last 5 minutes.
+                      message: Vault {{  "{{" }} $labels.pod {{  "}}" }} pod in namespace {{ dsc.vault.namespace }} has been unavailable for the last 5 minutes.
                     expr: |
                       kube_pod_container_status_ready{
                       pod!~"backup-utils-vault(-.*)*",
@@ -140,19 +140,19 @@ envs:
                   vaultPvcAlmostOutDiskSpace:
                     annotations:
                       summary: Vault PVC almost out of disk space in namespace {{ dsc.vault.namespace }}
-                    expr: |                                      
-                      round(                                     
-                      kubelet_volume_stats_available_bytes{      
+                    expr: |
+                      round(
+                      kubelet_volume_stats_available_bytes{
                       persistentvolumeclaim=~"(.*-)*vault(-.*)*",
-                      namespace="{{ dsc.vault.namespace }}"}     
-                      / kubelet_volume_stats_capacity_bytes{     
+                      namespace="{{ dsc.vault.namespace }}"}
+                      / kubelet_volume_stats_capacity_bytes{
                       persistentvolumeclaim=~"(.*-)*vault(-.*)*",
-                      namespace="{{ dsc.vault.namespace }}"} * 100, 0.01) < 10 > 
+                      namespace="{{ dsc.vault.namespace }}"} * 100, 0.01) < 10 > 0
                   vaultPvcOutDiskSpace:
                     annotations:
-                      message: PVC {{"{{"}} $labels.persistentvolumeclaim {{"}}"}} in namespace {{ dsc.vault.namespace }} is full (0% left).
+                      message: PVC {{  "{{" }} $labels.persistentvolumeclaim {{  "}}" }} in namespace {{ dsc.vault.namespace }} is full (0% left).
                       summary: Vault PVC out of disk space in namespace {{ dsc.vault.namespace }}
-                    expr: |                                
+                    expr: |
                       kubelet_volume_stats_available_bytes{
                       persistentvolumeclaim=~"(.*-)*vault(-.*)*",
                       namespace="{{ dsc.vault.namespace }}"} == 0
