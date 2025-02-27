@@ -100,7 +100,7 @@ repoServer:
     - name: NO_PROXY
       value: "{{ dsc.proxy.no_proxy }},{{ dsc_name }}-argo-infra-argocd-repo-server"
 {% endif %}
-      command: [sh, -c]
+    command: [sh, -c]
     args:
     - >-
       OS="$(uname | tr '[:upper:]' '[:lower:]')" && [ "$(uname -m)" = "aarch64" ] && ARCH="arm64" || ARCH="amd64" &&
