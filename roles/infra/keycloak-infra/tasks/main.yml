@@ -193,7 +193,7 @@
 - name: Reset Keycloak admin fact
   when: kc_token is failed
   ansible.builtin.set_fact:
-    keycloak_admin: dsoadmin
+    keycloak_admin: admininfra
 
 - name: Get Keycloak API token
   ansible.builtin.uri:
@@ -228,7 +228,7 @@
     permanent_admin_present: false
 
 - name: Update admin_present fact
-  when: kc_master_users.json | selectattr('username', 'equalto', 'dsoadmin')
+  when: kc_master_users.json | selectattr('username', 'equalto', 'admininfra')
   ansible.builtin.set_fact:
     permanent_admin_present: true
 
@@ -273,7 +273,7 @@
           - temporary: false
             type: password
             value: "{{ keycloak_admin_password }}"
-        username: dsoadmin
+        username: admininfra
         first_name: Admin
         last_name: Admin
         email: admin@example.com
@@ -323,7 +323,7 @@
 - name: Reset Keycloak admin fact
   when: kc_token is failed
   ansible.builtin.set_fact:
-    keycloak_admin: dsoadmin
+    keycloak_admin: admininfra
 
 - name: Get Keycloak API token
   ansible.builtin.uri:
