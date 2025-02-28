@@ -10,10 +10,6 @@ envs:
             noProxy: "{{ dsc.proxy.no_proxy }}"
       - argocd_app: "keycloak"
         vault_values:
-          global:
-            imageRegistry: "{{ dsc.global.registry }}"
-          image:
-            registry: "{{ dsc.global.registry }}"
           auth:
             adminPassword: "{{ lookup('ansible.builtin.password', '/dev/null', length=24, chars=['ascii_letters', 'digits']) }}"
           initcontainers:

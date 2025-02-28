@@ -1,11 +1,7 @@
 keycloak:
-  global:
-    imageRegistry: <path:forge-dso/data/env/dso-hp-testcm/apps/keycloak/values#global | jsonPath {.imageRegistry}>
-  image:
-    registry: <path:forge-dso/data/env/dso-hp-testcm/apps/keycloak/values#image | jsonPath {.registry}>
   initContainers:
     - name: realm-ext-provider
-      image: <path:forge-dso/data/env/dso-hp-testcm/apps/keycloak/values#global | jsonPath {.imageRegistry}>/curlimages/curl:<path:forge-dso/data/env/dso-hp-testcm/apps/keycloak/values#initcontainers | jsonPath {.curlVersion}>
+      image: docker.io/curlimages/curl:<path:forge-dso/data/env/dso-hp-testcm/apps/keycloak/values#initcontainers | jsonPath {.curlVersion}>
       imagePullPolicy: IfNotPresent
       command:
         - sh
