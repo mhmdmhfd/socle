@@ -8,8 +8,8 @@
   },
   "targetRevision": "refactor/gitops-falltrades",
   "apps": [
-    { "app": "keycloak", "enabled": "false", "namespace": "keycloak", "syncWave": 10 },
+    { "app": "keycloak", "enabled": "true", "namespace": "keycloak", "syncWave": 10 },
     { "app": "vault", "enabled": "false", "namespace": "vault", "syncWave": 10 },
-    { "app": "kubeview", "enabled": "true", "namespace": "kubeview", "syncWave": 10 }
+    { "app": "kubeview", "enabled": "false", "namespace": "kubeview", "syncWave": 10 }
   ]
 }
