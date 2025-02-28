@@ -1,8 +1,5 @@
 ---
-- name: Template values.j2 and write to destination
-  ansible.builtin.template:
-    src: "{{ item }}-values.j2"
-    dest: "gitops/apps/{{ item }}/values/dso-hp-testcm.yaml"
-    mode: '0644'
+- name: Loop over services 
+  ansible.builtin.include_tasks: ./template.yml
   loop:
-    - vault
+    - vault 

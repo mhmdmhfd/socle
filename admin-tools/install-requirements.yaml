@@ -14,6 +14,7 @@
       - kubernetes
       - python-gitlab
       - jmespath
+      - hvac 
     apps:
       - kubectl
       - helm

@@ -23,6 +23,14 @@ envs:
           podSecurityContext:
             enabled: true
             fsGroup: 1001
+      - argocd_app: "vault"
+        vault_values:
+          global:
+            image:
+              repository: "{{ dsc.global.registry | default('docker.io') }}"
+          server:
+            ha:
+              apiAddr: "https://{{ vault_domain }}" 
       - argocd_app: "kubeview"
         vault_values:
           replicaCount: 3

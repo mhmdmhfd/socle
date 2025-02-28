@@ -11,6 +11,13 @@ keycloak:
       volumeMounts:
         - name: empty-dir
           mountPath: /emptydir
+      env:
+        - name: HTTP_PROXY
+          value: <path:forge-dso/data/env/dso-hp-testcm/apps/common/values#proxy | jsonPath {.httpProxy}>
+        - name: HTTPS_PROXY
+          value: <path:forge-dso/data/env/dso-hp-testcm/apps/common/values#proxy | jsonPath {.httpsProxy}>
+        - name: NO_PROXY
+          value: <path:forge-dso/data/env/dso-hp-testcm/apps/common/values#proxy | jsonPath {.noProxy}>
   ingress:
     ingressClassName: <path:forge-dso/data/env/dso-hp-testcm/apps/keycloak/values#ingress | jsonPath {.ingressClassName}>
     hostname: <path:forge-dso/data/env/dso-hp-testcm/apps/keycloak/values#ingress | jsonPath {.hostname}>
@@ -19,3 +26,10 @@ keycloak:
   podSecurityContext:
     enabled: <path:forge-dso/data/env/dso-hp-testcm/apps/keycloak/values#podSecurityContext | jsonPath {.enabled}>
     fsGroup: <path:forge-dso/data/env/dso-hp-testcm/apps/keycloak/values#podSecurityContext | jsonPath {.fsGroup} | jsonParse>
+  extraEnvVars:
+    - name: HTTP_PROXY
+      value: <path:forge-dso/data/env/dso-hp-testcm/apps/common/values#proxy | jsonPath {.httpProxy}>
+    - name: HTTPS_PROXY
+      value: <path:forge-dso/data/env/dso-hp-testcm/apps/common/values#proxy | jsonPath {.httpsProxy}>
+    - name: NO_PROXY
+      value: <path:forge-dso/data/env/dso-hp-testcm/apps/common/values#proxy | jsonPath {.noProxy}>
