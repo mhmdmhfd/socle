@@ -1,77 +1,64 @@
 vault:
+  csi:
+    agent:
+      image:
+        repository: <path:forge-dso/data/env/dso-hp-testcm/apps/vault/values#global
+          | jsonPath {.image.repository}>/hashicorp/vault
+    image:
+      repository: <path:forge-dso/data/env/dso-hp-testcm/apps/vault/values#global
+        | jsonPath {.image.repository}>/hashicorp/vault-csi-provider
   global:
     serverTelemetry:
-      prometheusOperator: true
+      prometheusOperator: false
   injector:
-    metrics:
-      enabled: true 
-    image:
-      repository: <path:forge-dso/data/env/dso-hp-testcm/apps/vault/values#global | jsonPath {.image.repository}>/hashicorp/vault-k8s
     agentImage:
-      repository: <path:forge-dso/data/env/dso-hp-testcm/apps/vault/values#global | jsonPath {.image.repository}>/hashicorp/vault
+      repository: <path:forge-dso/data/env/dso-hp-testcm/apps/vault/values#global
+        | jsonPath {.image.repository}>/hashicorp/vault
+    image:
+      repository: <path:forge-dso/data/env/dso-hp-testcm/apps/vault/values#global
+        | jsonPath {.image.repository}>/hashicorp/vault-k8s
+    metrics:
+      enabled: false
+    securityContext:
+      container:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+          - ALL
+      pod:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 100
   server:
-    route:
-      enabled: false
-    ha:
-      enabled: true
-      replicas: 3
-      apiAddr: <path:forge-dso/data/env/dso-hp-testcm/apps/vault/values#server | jsonPath {.ha.apiAddr}>
-      raft:
-        enabled: true
-        config: <path:forge-dso/data/env/dso-hp-testcm/apps/vault/values#metrics | jsonPath {.server.ha.raft.config}>
-    standalone:
-      enabled: false
-      config: <path:forge-dso/data/env/dso-hp-testcm/apps/vault/values#metrics | jsonPath {.standalone.config}>
     auditStorage:
       enable: true
     dataStorage:
       enable: true
-      size: <path:forge-dso/data/env/dso-hp-testcm/apps/vault/values#server | jsonPath {.dataStorage.size}>
+      size: 23Gi
+    ha:
+      apiAddr: <path:forge-dso/data/env/dso-hp-testcm/apps/vault/values#server | jsonPath
+        {.ha.apiAddr}>
+      enabled: true
+      raft:
+        enabled: true
+      replicas: 3
     image:
-      repository: <path:forge-dso/data/env/dso-hp-testcm/apps/vault/values#global | jsonPath {.image.repository}>/hashicorp/vault
-  csi:
-    image:
-      repository: <path:forge-dso/data/env/dso-hp-testcm/apps/vault/values#global | jsonPath {.image.repository}>/hashicorp/vault-csi-provider
-    agent:
-      image:
-        repository: <path:forge-dso/data/env/dso-hp-testcm/apps/vault/values#global | jsonPath {.image.repository}>/hashicorp/vault
+      repository: <path:forge-dso/data/env/dso-hp-testcm/apps/vault/values#global
+        | jsonPath {.image.repository}>/hashicorp/vault
+    route:
+      enabled: false
+    standalone:
+      enabled: false
+    statefulSet:
+      securityContext:
+        container:
+          allowPrivilegeEscalation: false
+        pod:
+          fsGroup: 1000
+          runAsGroup: 1000
+          runAsNonRoot: true
+          runAsUser: 100
   serverTelemetry:
     serviceMonitor:
-      enabled: true
-    prometheusRules:
-      enabled: true
-      rules:
-        - alert: Vault instance not healthy
-          annotations:
-            message: <path:forge-dso/data/env/dso-hp-testcm/apps/vault/values#alerting | jsonPath {.serverTelemetry.prometheusRules.rules.vaultNotHealthy.annotations.message}>
-            summary: Vault instance is not healthy (sealed?)
-          expr: <path:forge-dso/data/env/dso-hp-testcm/apps/vault/values#alerting | jsonPath {.serverTelemetry.prometheusRules.rules.vaultNotHealthy.expr}>
-          for: 5m
-          labels:
-            severity: warning
-        - alert: Vault is not available
-          annotations:
-            message: <path:forge-dso/data/env/dso-hp-testcm/apps/vault/values#alerting | jsonPath {.serverTelemetry.prometheusRules.rules.vaultNotAvailable.annotations.message}>
-            summary: Vault is down (no ready container)
-          expr: <path:forge-dso/data/env/dso-hp-testcm/apps/vault/values#alerting | jsonPath {.serverTelemetry.prometheusRules.rules.vaultNotAvailable.expr}>
-          for: 5m
-          labels:
-            severity: critical
-        - alert: Vault agent injector is not available
-          annotations:
-            message: <path:forge-dso/data/env/dso-hp-testcm/apps/vault/values#alerting | jsonPath {.serverTelemetry.prometheusRules.rules.agentInjectorNotAvailable.annotations.message}>
-            summary: Vault agent injector is down (no ready container)
-          expr: <path:forge-dso/data/env/dso-hp-testcm/apps/vault/values#alerting | jsonPath {.serverTelemetry.prometheusRules.rules.agentInjectorNotAvailable.expr}>
-          for: 5m
-          labels:
-            severity: critical
-        - alert: Vault Pod not healthy
-          annotations:
-            message: <path:forge-dso/data/env/dso-hp-testcm/apps/vault/values#alerting | jsonPath {.serverTelemetry.prometheusRules.rules.vaultPodNotHealthy.annotations.message}> 
-            summary: Vault pod not healthy (container is not ready)
-          expr: <path:forge-dso/data/env/dso-hp-testcm/apps/vault/values#alerting | jsonPath {.serverTelemetry.prometheusRules.rules.vaultPodNotHealthy.expr}>
-          for: 5m
-          labels:
-            severity: warning
-        - alert: Vault PVC has low remaining disk space
-          annotations:
+      enabled: false
