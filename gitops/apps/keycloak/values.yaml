@@ -15,10 +15,6 @@ keycloak:
     - name: DSFR_THEME_CONTACT_EMAIL
       value: cloudpinative-relations@interieur.gouv.fr
   replicaCount: 3
-  podSecurityContext:
-    enabled: false
-  containerSecurityContext:
-    enabled: false
   resources:
     limits:
       memory: "2048Mi"
