@@ -2,4 +2,5 @@
 - name: Loop over services
   ansible.builtin.include_tasks: ./template.yml
   loop:
+    - keycloak
     - vault
