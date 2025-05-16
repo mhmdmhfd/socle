@@ -13,6 +13,7 @@ envs:
               quay: "{{ dsc.global.registry | default('quay.io') }}"
           domain:
             argocd: "{{ argocd_domain }}"
+            awx: "{{ awx_domain }}"
             console: "{{ console_domain }}"
             gitlab: "{{ gitlab_domain }}"
             grafana: "{{ grafana_domain }}"
@@ -112,3 +113,7 @@ envs:
       - argocd_app: "argocd"
         vault_values:
           argocdServerAdminPassword: "{{ dsc.argocd.admin.password | default(lookup('ansible.builtin.password', '/dev/null', length=24, chars=['ascii_letters', 'digits'])) }}"
+      - argocd_app: "awx"
+        vault_values:
+          auth:
+            adminPassword: "{{ lookup('ansible.builtin.password', '/dev/null', length=24, chars=['ascii_letters', 'digits']) }}"
